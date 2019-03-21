@@ -2,8 +2,8 @@
   <div class="mainIndex">
     <!-- 文案框 -->
     <div class="game-info"></div>
-    <div>
-      <van-button type="danger" class="paly-game" @click="startGame">开始游戏</van-button>
+    <div class="game-button">
+      <img src="../assets/img/play_game.jpg" alt=""  @click="startGame" class="paly-game">
     </div>
   </div>
 </template>
@@ -21,21 +21,23 @@ export default {
 <style scoped>
 .mainIndex {
   width: 100%;
-  height: 80vh;
-  background: #edbfb0;
-  padding: 10vh 0;
-  /* background: #edbfb0 url("../assets/img/index_bg.jpg")  left center no-repeat; */
-  /* background-size:contain; */
+  height: 100vh;
+  background: #69423b url("../assets/img/index_bg.png")  left top no-repeat;
+  background-size:  100%;
+  position: relative; 
 }
-.game-info{
-    width: 85%;
-    height: 60vh;
-    background-color: #fff;
-    margin: 0 auto;
-    margin-bottom: 10vh;
+.game-button{
+  position: absolute;
+  left: 0;
+  bottom: 1.227rem;
+  width: 100%;
+  height: 0.813rem;
+
 }
 .paly-game {
-  margin: 0 auto;
   display: block;
+  width: 2.47rem;
+  height: 0.813rem;
+  margin: 0 auto;
 }
 </style>

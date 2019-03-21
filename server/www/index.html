@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.7/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:400px;margin: 20px"></div>
+    <p>参与人数：{{peopleCount}} 人</p>
+    <!-- 选项 -->
+    <ul>
+      <!-- <li @click="filterData('title_1')">目前您的居住环境</li>
+      <li @click="filterData('title_2')">生活中在哪些领域您愿意为创意设计付更多的费用？</li>
+      <li @click="filterData('title_3')">购买家具时，您最看重的信息参考是什么？</li>
+      <li @click="filterData('title_4')">您若购买儿童家具，最关心的是什么？</li>
+      <li @click="filterData('title_5')">除了买新房，您更换、选购家具还可能是发生了以下哪些情况？</li>
+      <li @click="filterData('title_6')">您认为这款儿童桌哪里吸引您？</li> -->
+      <li v-for="(item,index) in allQuestion" @click="filterData(index)" :class="{'current':clickCount==index}">{{item.questionsTitle}}</li>
+    </ul>
+  </div>
+  <!-- ECharts单文件引入 -->
+  <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+</body>
+<script src="./js/question.js"></script>
+<script>
+  // 路径配置
+  require.config({
+    paths: {
+      echarts: 'http://echarts.baidu.com/build/dist'
+    }
+  });
+
+  var vm = new Vue({
+    el: "#app",
+    data: {
+      clickCount: 0,
+      allQuestion: [],
+      allData: [],
+      kindData: [],
+      EarchData: {
+        titleName: ['测试1', '测试2', '测试3', '测试4', '测试5'],
+        titleCount: [{
+            value: 335,
+            name: '测试1'
+          },
+          {
+            value: 310,
+            name: '测试2'
+          },
+          {
+            value: 234,
+            name: '测试3'
+          },
+          {
+            value: 135,
+            name: '测试4'
+          },
+          {
+            value: 1548,
+            name: '测试5'
+          }
+        ]
+      }
+    },
+    mounted() {
+      this._InitEarch();
+    },
+    created() {
+      this.allQuestion = questionArr;
+      this._Api();
+    },
+    computed: {
+      peopleCount() {
+        let count = this.allData.filter(item => {
+          return item.titleId.indexOf("title_1") > -1
+        })
+        return count.length
+      }
+    },
+    methods: {
+      filterData(str) {
+        this.clickCount = str;
+        let objectData = this.allData.filter(item => {
+          return item.titleId.indexOf(`title_${str+1}`) > -1
+        });
+        let titleName = this.allQuestion[str].questions.map(item => {
+          return item.des
+        })
+        let titleCount = titleName.map(item => {
+          let num = Math.floor(Math.random() * 100);
+          return {
+            name: item,
+            value: 0
+          }
+        })
+        let testData = objectData.map(item => {
+          let userAnswer = item.answer.split(","); // 获取用户的答案数据 主要是 多选
+          return userAnswer
+        });
+        let changeNameArr = [];
+        testData.forEach(item => {
+          item.forEach(k => {
+            this.allQuestion[str].questions.map(i => {
+              if (k == i.type) {
+                changeNameArr.push(i.des)
+              }
+            })
+          })
+        })
+        titleCount.forEach(item => {
+          changeNameArr.forEach(i => {
+            if (item.name == i) {
+              item.value += 1;
+            }
+          })
+        })
+        this.EarchData = {
+          titleName,
+          titleCount
+        };
+        this._InitEarch();
+      },
+      answerSort() {
+
+      },
+      _Api() {
+        axios.get("http://139.196.24.37:8219/Invest/getResult", {}).then(res => {
+          if (res.data.code == 0) {
+            this.allData = res.data.msg;
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      _InitEarch() {
+        // 使用 // 使用柱状图就加载pie模块，按需加载
+        var _this = this;
+        require(['echarts', 'echarts/chart/pie'], function (ec) {
+          // 基于准备好的dom，初始化echarts图表
+          var myChart = ec.init(document.getElementById('main'));
+          var option = {
+            title: {
+              text: '吱音2019春季会展问卷调查',
+              subtext: '数据来源真实',
+              x: 'center'
+            },
+            tooltip: {
+              trigger: 'item',
+              formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+              orient: 'vertical',
+              x: 'left',
+              data: _this.EarchData.titleName
+            },
+            series: [{
+              name: '访问来源',
+              type: 'pie',
+              radius: '55%',
+              center: ['50%', '60%'],
+              itemStyle:{
+                normal: {
+                  label:{
+                  formatter: "{b} : {c} ({d}%)"
+
+                  }
+                }
+              },
+              data: _this.EarchData.titleCount
+            }]
+          };
+
+          // 为echarts对象加载数据 
+          myChart.setOption(option);
+        });
+      }
+    }
+  })
+
+</script>
+
+</html>

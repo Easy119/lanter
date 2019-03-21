@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>lanter</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=0">
+  <title>ziinlife</title>
 </head>
 
 <body>
@@ -16,7 +16,33 @@
     if (htmlWidth > 750) {htmlWidth = 750};
     htmlDom.style.fontSize = (htmlWidth/20) + "px";
 ada
-  </script> -->   
+  </script> -->
+  <script>
+    (function (window) {
+      var freshRem = function () {
+        var dw = window.document.documentElement.clientWidth;
+        // console.log(dw);
+        var font = dw / 10 > 75 ? 750 : dw / 10;
+        font += 'px';
+        // 1rem = 10vw; width*10%
+        window.document.documentElement.style.fontSize = font;
+      }
+
+      if (window.document.readyState === "complete") {
+        freshRem();
+      } else {
+        window.document.addEventListener("DOMContentLoaded", function () {
+          freshRem();
+        }, false);
+      }
+
+      window.addEventListener('resize', function (e) {
+        freshRem();
+      }, false);
+
+    })(window)
+
+  </script>
 </body>
 
 </html>
